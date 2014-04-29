@@ -1,4 +1,5 @@
 import pygame
+from random import randrange
 
 # Definitions
 pi = 3.1415926535
@@ -56,8 +57,8 @@ clock = pygame.time.Clock()
 
 
 ball = Ball(screen, 350, 250)
-player1 = Paddle(0, 0)
-player2 = Paddle(680, 0)
+player1 = Paddle(0, 250)
+player2 = Paddle(680, 250)
 
 # Main Game Loop
 while not done:
@@ -70,28 +71,28 @@ while not done:
 			if event.key == pygame.K_UP:
 				# Start Game
 				if ball.x_vel == 0 and ball.y_vel == 0:
-					ball.x_vel = -5
-					ball.y_vel = 3
-				player1.y_vel = -5
+					ball.x_vel = randrange(-10, -5)
+					ball.y_vel = randrange(-3, -1)
+				player2.y_vel = -5
 			if event.key == pygame.K_DOWN:
 				# Start Game
 				if ball.x_vel == 0 and ball.y_vel == 0:
-					ball.x_vel = -5
-					ball.y_vel = 3
-				player1.y_vel = 5
+					ball.x_vel = randrange(-10, -5)
+					ball.y_vel = randrange(1, 3)
+				player2.y_vel = 5
 
 			if event.key == pygame.K_w:
 				# Start Game
 				if ball.x_vel == 0 and ball.y_vel == 0:
 					ball.x_vel = 5
 					ball.y_vel = 3
-				player2.y_vel = -5
+				player1.y_vel = -5
 			if event.key == pygame.K_s:
 				# Start Game
 				if ball.x_vel == 0 and ball.y_vel == 0:
 					ball.x_vel = 5
 					ball.y_vel = 3
-				player2.y_vel = 5
+				player1.y_vel = 5
 
 			if event.key == pygame.K_ESCAPE:
 				done = True
@@ -99,14 +100,14 @@ while not done:
 
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_UP:
-				player1.y_vel = 0
+				player2.y_vel = 0
 			if event.key == pygame.K_DOWN:
-				player1.y_vel = 0
+				player2.y_vel = 0
 
 			if event.key == pygame.K_w:
-				player2.y_vel = 0
+				player1.y_vel = 0
 			if event.key == pygame.K_s:
-				player2.y_vel = 0
+				player1.y_vel = 0
 
 	# Game Logic
 
@@ -118,7 +119,12 @@ while not done:
 	# Border Checking -- Will need to change
 	if ball.y > 475 or ball.y < 0:
 		ball.y_vel *= -1
-	elif ball.x < 0 or ball.x > 675:
+	elif ball.x < 0:
+		ball.x = player2.x-20
+		ball.y = player2.hitHeight-(PADDLE_HEIGHT/2)
+		ball.x_vel = 0
+		ball.y_vel = 0
+	elif ball.x > 675:
 		ball.x = 350
 		ball.y = 250
 		ball.x_vel = 0
@@ -146,11 +152,12 @@ while not done:
 	player1.hitHeight = player1.setHeight(player1.y)
 	player2.hitHeight = player2.setHeight(player2.y)
 
+	# Paddle hit detection
 	if ball.x <= player1.hitWidth:
 		if ball.y < player1.hitHeight and ball.y > (player1.y+225):
 			ball.x_vel *= -1
 
-	if ball.x > player2.x:
+	if (ball.x+25) > player2.x:
 		if ball.y < player2.hitHeight and ball.y > (player2.y+225):
 			ball.x_vel *= -1
 
