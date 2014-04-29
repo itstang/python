@@ -19,8 +19,30 @@ class Paddle(object):
 	def __init__(self, xpos, ypos):
 		self.x = xpos
 		self.y = ypos + 200
-		self.hitHeight = ypos + PADDLE_HEIGHT
-		self.hitWidth = self.x + PADDLE_WIDTH
+		self.y_vel = 0
+		self.hitHeight = 0
+		self.hitWidth = xpos + PADDLE_WIDTH
+	def setHeight(self, ypos):
+		self.height = ypos + PADDLE_HEIGHT + 225
+		return self.height
+	def checkBounds(self):
+		if self.y > 200:
+			self.y = 200
+
+		if self.y < -225:
+			self.y = -225
+
+class Ball(object):
+	def __init__(self, screen, xpos, ypos):
+		self.x = xpos
+		self.y = ypos
+		self.x_vel = 0
+		self.y_vel = 0
+	def drawBall(self, xpos, ypos):
+		pygame.draw.ellipse(screen, WHITE, [xpos,ypos,25,25])
+	def ballSpeed(self):
+		self.x_vel = 5
+		self.y_vel = 3
 
 def drawPaddle(screen, x, y):
 	pygame.draw.rect(screen, WHITE, [x,CENTER_SCREEN+y,PADDLE_WIDTH,PADDLE_HEIGHT])
@@ -32,14 +54,11 @@ pygame.display.set_caption("A Game?")
 done = False
 clock = pygame.time.Clock()
 
-y_coord = 0
-y_speed = 0
 
-ball_x = 50
-ball_y = 50
+ball = Ball(screen, 350, 250)
+player1 = Paddle(0, 0)
+player2 = Paddle(680, 0)
 
-ball_x_vel = 5
-ball_y_vel = 3
 # Main Game Loop
 while not done:
 	# Main event loop
@@ -49,58 +68,91 @@ while not done:
 
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_UP:
-				y_speed = -5
+				# Start Game
+				if ball.x_vel == 0 and ball.y_vel == 0:
+					ball.x_vel = -5
+					ball.y_vel = 3
+				player1.y_vel = -5
 			if event.key == pygame.K_DOWN:
-				y_speed = 5
+				# Start Game
+				if ball.x_vel == 0 and ball.y_vel == 0:
+					ball.x_vel = -5
+					ball.y_vel = 3
+				player1.y_vel = 5
+
+			if event.key == pygame.K_w:
+				# Start Game
+				if ball.x_vel == 0 and ball.y_vel == 0:
+					ball.x_vel = 5
+					ball.y_vel = 3
+				player2.y_vel = -5
+			if event.key == pygame.K_s:
+				# Start Game
+				if ball.x_vel == 0 and ball.y_vel == 0:
+					ball.x_vel = 5
+					ball.y_vel = 3
+				player2.y_vel = 5
+
 			if event.key == pygame.K_ESCAPE:
 				done = True
-			if event.key == pygame.K_RETURN:
-				print(player1.hitWidth)
+			
 
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_UP:
-				y_speed = 0
+				player1.y_vel = 0
 			if event.key == pygame.K_DOWN:
-				y_speed = 0
+				player1.y_vel = 0
+
+			if event.key == pygame.K_w:
+				player2.y_vel = 0
+			if event.key == pygame.K_s:
+				player2.y_vel = 0
 
 	# Game Logic
 
 	# Drawing Code
 	screen.fill(BLACK)
 
-	pygame.draw.ellipse(screen, WHITE, [ball_x,ball_y,25,25])
+	ball.drawBall(ball.x, ball.y)
 
 	# Border Checking -- Will need to change
-	if ball_y > 475 or ball_y < 0:
-		ball_y_vel *= -1
-	if ball_x > 675 or ball_x < 0:
-		ball_x_vel *= -1
+	if ball.y > 475 or ball.y < 0:
+		ball.y_vel *= -1
+	elif ball.x < 0 or ball.x > 675:
+		ball.x = 350
+		ball.y = 250
+		ball.x_vel = 0
+		ball.y_vel = 0
 
 	# Animate the ball
-	ball_x += ball_x_vel
-	ball_y += ball_y_vel
+	ball.x += ball.x_vel
+	ball.y += ball.y_vel
 
 	# Animate the paddle
-	y_coord += y_speed
+	player1.y += player1.y_vel
+	player2.y += player2.y_vel
 
-	if y_coord > 200:
-		y_coord = 200
+	# Top/Bottom Boundries
+	player1.checkBounds()	
+	player2.checkBounds()
 
-	if y_coord < -225:
-		y_coord = -225	
+	drawPaddle(screen, player1.x, player1.y)
+	drawPaddle(screen, player2.x, player2.y)
 
-	player1 = Paddle(0, 0)
-	player2 = Paddle(680, 0)
+	player1.y = player1.y
+	player2.y = player2.y
 
-	drawPaddle(screen, player1.x, y_coord)
-	drawPaddle(screen, player2.x, 0)
+	# Update the hitbox height
+	player1.hitHeight = player1.setHeight(player1.y)
+	player2.hitHeight = player2.setHeight(player2.y)
 
-	player1.y = y_coord
-	print(player1.hitHeight)
-	#print(ball_y)
+	if ball.x <= player1.hitWidth:
+		if ball.y < player1.hitHeight and ball.y > (player1.y+225):
+			ball.x_vel *= -1
 
-	if ball_x == player1.hitWidth and ball_y > player1.y:
-		ball_x_vel *= -1
+	if ball.x > player2.x:
+		if ball.y < player2.hitHeight and ball.y > (player2.y+225):
+			ball.x_vel *= -1
 
 	pygame.display.flip()
 	clock.tick(60)
