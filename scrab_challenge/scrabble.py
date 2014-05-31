@@ -30,7 +30,7 @@ for dictWord in dict:
 	checkWord = list(dictWord)
 	tempRack = list(rack)
 	for checkLetter in dictWord:
-		#for letter in dictWord:	
+		#for letter in dictWord:
 		if checkLetter in tempRack:
 			checkWord.remove(checkLetter)
 			tempRack.remove(checkLetter)

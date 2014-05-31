@@ -18,6 +18,7 @@ pygame.init()
 
 class Paddle(object):
 	def __init__(self, xpos, ypos):
+		self.turn = False
 		self.x = xpos
 		self.y = ypos + 200
 		self.y_vel = 0
@@ -57,8 +58,9 @@ clock = pygame.time.Clock()
 
 
 ball = Ball(screen, 350, 250)
-player1 = Paddle(0, 250)
-player2 = Paddle(680, 250)
+player1 = Paddle(0, -200)
+player1.turn = True
+player2 = Paddle(680, -200)
 
 # Main Game Loop
 while not done:
@@ -68,28 +70,31 @@ while not done:
 			done = True
 
 		if event.type == pygame.KEYDOWN:
+
+			# PLAYER 2 CONTROLS -- RIGHT SIDE
 			if event.key == pygame.K_UP:
 				# Start Game
-				if ball.x_vel == 0 and ball.y_vel == 0:
+				if ball.x_vel == 0 and ball.y_vel == 0 and player2.turn == True:
 					ball.x_vel = randrange(-10, -5)
 					ball.y_vel = randrange(-3, -1)
 				player2.y_vel = -5
 			if event.key == pygame.K_DOWN:
 				# Start Game
-				if ball.x_vel == 0 and ball.y_vel == 0:
+				if ball.x_vel == 0 and ball.y_vel == 0 and player2.turn == True:
 					ball.x_vel = randrange(-10, -5)
 					ball.y_vel = randrange(1, 3)
 				player2.y_vel = 5
 
+			# PLAYER 1 CONTROLS -- LEFT SIDE
 			if event.key == pygame.K_w:
 				# Start Game
-				if ball.x_vel == 0 and ball.y_vel == 0:
+				if ball.x_vel == 0 and ball.y_vel == 0 and player1.turn == True:
 					ball.x_vel = 5
 					ball.y_vel = 3
 				player1.y_vel = -5
 			if event.key == pygame.K_s:
 				# Start Game
-				if ball.x_vel == 0 and ball.y_vel == 0:
+				if ball.x_vel == 0 and ball.y_vel == 0 and player1.turn == True:
 					ball.x_vel = 5
 					ball.y_vel = 3
 				player1.y_vel = 5
@@ -124,11 +129,15 @@ while not done:
 		ball.y = player2.hitHeight-(PADDLE_HEIGHT/2)
 		ball.x_vel = 0
 		ball.y_vel = 0
+		player1.turn = False
+		player2.turn = True
 	elif ball.x > 675:
 		ball.x = 350
 		ball.y = 250
 		ball.x_vel = 0
 		ball.y_vel = 0
+		player1.turn = True
+		player2.turn = False
 
 	# Animate the ball
 	ball.x += ball.x_vel
